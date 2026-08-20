@@ -12,7 +12,7 @@ export function ErrorState({ message, onRetry }: ErrorStateProps) {
         <AlertTriangle size={28} />
       </div>
       <div>
-        <p className="text-lg font-bold text-zinc-800 dark:text-zinc-100">Something went wrong.</p>
+        <p className="font-heading text-lg font-bold text-zinc-800 dark:text-zinc-100">Something went wrong.</p>
         <p className="mt-1 max-w-sm text-sm text-zinc-500 dark:text-zinc-400">
           {message ?? "We couldn't load the Pokémon. Please check your connection and try again."}
         </p>

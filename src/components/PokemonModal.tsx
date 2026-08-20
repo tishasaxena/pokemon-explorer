@@ -86,7 +86,7 @@ export function PokemonModal({ pokemon, isFavorite, onToggleFavorite, onClose }:
         aria-modal="true"
         aria-labelledby="pokemon-modal-title"
         onClick={(e) => e.stopPropagation()}
-        className="animate-modal-in max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl dark:bg-zinc-800"
+        className="animate-modal-in max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-[2rem] bg-white shadow-2xl sm:rounded-[2rem] dark:bg-zinc-800"
       >
         {pokemon.cryUrl && <audio ref={audioRef} src={pokemon.cryUrl} onEnded={() => setIsPlayingCry(false)} onPlay={() => setIsPlayingCry(true)} onPause={() => setIsPlayingCry(false)} />}
 
@@ -122,13 +122,18 @@ export function PokemonModal({ pokemon, isFavorite, onToggleFavorite, onClose }:
             {formatId(pokemon.id)}
           </span>
 
-          <div className="relative">
+          <div className="relative flex items-center justify-center">
+            <div
+              className="absolute h-32 w-32 rounded-full opacity-50 blur-2xl sm:h-40 sm:w-40"
+              style={{ backgroundColor: primaryColor }}
+              aria-hidden="true"
+            />
             {displayedImage && (
               <img
                 key={displayedImage}
                 src={displayedImage}
                 alt={pokemon.name}
-                className="animate-fade-in-up h-40 w-40 object-contain drop-shadow-xl sm:h-48 sm:w-48"
+                className="animate-fade-in-up relative h-40 w-40 object-contain drop-shadow-xl sm:h-48 sm:w-48"
               />
             )}
             {showShiny && (
@@ -138,7 +143,7 @@ export function PokemonModal({ pokemon, isFavorite, onToggleFavorite, onClose }:
 
           <h2
             id="pokemon-modal-title"
-            className="mt-1 text-2xl font-extrabold capitalize text-zinc-900 dark:text-zinc-50"
+            className="font-heading mt-1 text-2xl font-extrabold capitalize text-zinc-900 dark:text-zinc-50"
           >
             {formatName(pokemon.name)}
           </h2>
@@ -183,7 +188,7 @@ export function PokemonModal({ pokemon, isFavorite, onToggleFavorite, onClose }:
           </div>
         </div>
 
-        <div className="space-y-6 px-6 pb-8">
+        <div className="divide-y divide-zinc-100 px-6 pb-8 dark:divide-white/5 [&>*]:py-5 [&>*:first-child]:pt-6 [&>*:last-child]:pb-0">
           {(flavorLoading || flavorText) && (
             <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3 dark:border-zinc-700 dark:bg-zinc-700/40">
               {flavorLoading ? (

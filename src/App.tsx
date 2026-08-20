@@ -124,7 +124,7 @@ function App() {
     : undefined
 
   return (
-    <div className="min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-50">
+    <div className="min-h-screen text-zinc-900 dark:text-zinc-50">
       <Header
         theme={theme}
         onToggleTheme={toggleTheme}
@@ -213,7 +213,7 @@ function App() {
               type="button"
               onClick={explorer.loadMore}
               disabled={explorer.loadingMore}
-              className="flex items-center gap-2 rounded-full bg-zinc-800 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-transform hover:scale-105 hover:bg-zinc-700 disabled:opacity-60 disabled:hover:scale-100 dark:bg-zinc-100 dark:text-zinc-900"
+              className="flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/25 transition-transform hover:scale-105 disabled:opacity-60 disabled:hover:scale-100"
             >
               {explorer.loadingMore && <Loader2 size={16} className="animate-spin" />}
               {explorer.loadingMore ? 'Loading...' : 'Load More'}

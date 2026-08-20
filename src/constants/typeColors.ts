@@ -50,6 +50,15 @@ export function getTypeColor(type: string): string {
   return TYPE_COLORS[type] ?? '#68A090'
 }
 
+export function shadeColor(hex: string, percent: number): string {
+  const num = parseInt(hex.replace('#', ''), 16)
+  const amount = Math.round(2.55 * percent)
+  const r = Math.min(255, Math.max(0, (num >> 16) + amount))
+  const g = Math.min(255, Math.max(0, ((num >> 8) & 0x00ff) + amount))
+  const b = Math.min(255, Math.max(0, (num & 0x0000ff) + amount))
+  return `#${(0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16).slice(1)}`
+}
+
 export function getTypeIcon(type: string): string {
   return TYPE_ICONS[type] ?? '❔'
 }

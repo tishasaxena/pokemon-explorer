@@ -61,10 +61,10 @@ export function PokemonCard({
           : undefined,
         ...(isSelectedForCompare ? { boxShadow: `0 0 0 3px ${primaryColor}` } : {}),
       }}
-      className="animate-fade-in-up group relative flex cursor-pointer flex-col items-center rounded-2xl border border-black/5 bg-white p-4 text-left shadow-sm ring-1 ring-black/5 transition-[transform,box-shadow] duration-150 ease-out will-change-transform focus-visible:outline-none focus-visible:ring-2 dark:border-white/5 dark:bg-zinc-800 dark:ring-white/5"
+      className="animate-fade-in-up group relative flex cursor-pointer flex-col items-center overflow-hidden rounded-[1.5rem] border border-black/5 bg-white/90 p-4 text-left shadow-sm ring-1 ring-black/5 backdrop-blur-sm transition-[transform,box-shadow] duration-150 ease-out will-change-transform focus-visible:outline-none focus-visible:ring-2 dark:border-white/5 dark:bg-zinc-800/90 dark:ring-white/5"
     >
       <div className="flex w-full items-start justify-between">
-        <span className="font-mono text-xs font-semibold text-zinc-400 dark:text-zinc-500">
+        <span className="rounded-full bg-zinc-100/80 px-2 py-0.5 font-mono text-xs font-bold text-zinc-400 dark:bg-white/5 dark:text-zinc-500">
           {formatId(pokemon.id)}
         </span>
         <button
@@ -85,20 +85,25 @@ export function PokemonCard({
         </button>
       </div>
 
-      <div className="flex h-28 w-28 items-center justify-center">
+      <div className="relative flex h-28 w-28 items-center justify-center">
+        <div
+          className="absolute h-20 w-20 rounded-full opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-100"
+          style={{ backgroundColor: primaryColor }}
+          aria-hidden="true"
+        />
         {pokemon.image ? (
           <img
             src={pokemon.image}
             alt={pokemon.name}
             loading="lazy"
-            className="h-full w-full object-contain drop-shadow-md transition-transform duration-200 group-hover:scale-110"
+            className="relative h-full w-full object-contain drop-shadow-md transition-transform duration-200 group-hover:scale-110"
           />
         ) : (
-          <div className="text-4xl">❓</div>
+          <div className="relative text-4xl">❓</div>
         )}
       </div>
 
-      <h3 className="mt-1 text-base font-bold capitalize text-zinc-900 dark:text-zinc-50">
+      <h3 className="font-heading mt-1 text-base font-bold capitalize text-zinc-900 dark:text-zinc-50">
         {formatName(pokemon.name)}
       </h3>
 
