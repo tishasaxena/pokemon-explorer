@@ -54,7 +54,7 @@ export function PokemonCard({
       onMouseLeave={resetTilt}
       style={{
         ...style,
-        background: `linear-gradient(160deg, ${primaryColor}22 0%, transparent 55%)`,
+        backgroundImage: `linear-gradient(160deg, ${primaryColor}22 0%, transparent 55%)`,
         transform: `perspective(700px) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg) translateY(${tilt.hovered ? -4 : 0}px)`,
         boxShadow: tilt.hovered
           ? `0 20px 30px -12px ${primaryColor}55, 0 4px 10px -4px rgba(0,0,0,0.15)`
