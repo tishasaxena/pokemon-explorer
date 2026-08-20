@@ -106,6 +106,11 @@ export async function fetchPokemonPage(limit: number, offset: number): Promise<P
   return { results, total: list.count }
 }
 
+export async function fetchAllPokemonNames(): Promise<NamedApiResource[]> {
+  const data = await getJson<{ results: NamedApiResource[] }>(`${BASE_URL}/pokemon?limit=100000&offset=0`)
+  return data.results
+}
+
 export async function fetchTypeMembers(type: string): Promise<NamedApiResource[]> {
   const data = await getJson<{ pokemon: { pokemon: NamedApiResource }[] }>(
     `${BASE_URL}/type/${type}`,

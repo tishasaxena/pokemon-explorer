@@ -1,7 +1,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { ApiError, fetchPokemonDetail, fetchPokemonPage, fetchTypeMembers } from '../services/pokemonApi'
+import {
+  ApiError,
+  fetchAllPokemonNames,
+  fetchPokemonDetail,
+  fetchPokemonPage,
+  fetchTypeMembers,
+} from '../services/pokemonApi'
 import type { NamedApiResource, PokemonSummary, SortKey } from '../types/pokemon'
 import { useDebounce } from './useDebounce'
+
+function idFromUrl(url: string): string {
+  return url.split('/').filter(Boolean).pop() ?? ''
+}
 
 const PAGE_SIZE = 20
 
@@ -23,6 +33,8 @@ export function usePokemonExplorer() {
 
   const offsetRef = useRef(0)
   const typeMembersRef = useRef<Record<string, NamedApiResource[]>>({})
+  const allPokemonRef = useRef<NamedApiResource[] | null>(null)
+  const searchMatchesRef = useRef<NamedApiResource[]>([])
   const requestIdRef = useRef(0)
 
   const mode: Mode = debouncedSearch ? 'search' : typeFilter !== 'all' ? 'type' : 'list'
@@ -36,11 +48,29 @@ export function usePokemonExplorer() {
 
     try {
       if (mode === 'search') {
-        const result = await fetchPokemonDetail(debouncedSearch)
+        if (!allPokemonRef.current) {
+          allPokemonRef.current = await fetchAllPokemonNames()
+        }
         if (requestId !== requestIdRef.current) return
-        setItems([result])
-        setHasMore(false)
-        setTotal(1)
+        const allPokemon = allPokemonRef.current
+        const matches = allPokemon.filter(
+          (p) => p.name.startsWith(debouncedSearch) || idFromUrl(p.url).startsWith(debouncedSearch),
+        )
+        searchMatchesRef.current = matches
+        if (matches.length === 0) {
+          setItems([])
+          setNotFound(true)
+          setHasMore(false)
+          setTotal(0)
+        } else {
+          const slice = matches.slice(0, PAGE_SIZE)
+          const details = await Promise.all(slice.map((m) => fetchPokemonDetail(m.name)))
+          if (requestId !== requestIdRef.current) return
+          setItems(details)
+          offsetRef.current = slice.length
+          setHasMore(slice.length < matches.length)
+          setTotal(matches.length)
+        }
       } else if (mode === 'type') {
         let members = typeMembersRef.current[typeFilter]
         if (!members) {
@@ -84,11 +114,18 @@ export function usePokemonExplorer() {
   }, [loadFirstPage])
 
   const loadMore = useCallback(async () => {
-    if (mode === 'search' || loadingMore || !hasMore) return
+    if (loadingMore || !hasMore) return
     setLoadingMore(true)
     setError(null)
     try {
-      if (mode === 'type') {
+      if (mode === 'search') {
+        const matches = searchMatchesRef.current
+        const slice = matches.slice(offsetRef.current, offsetRef.current + PAGE_SIZE)
+        const details = await Promise.all(slice.map((m) => fetchPokemonDetail(m.name)))
+        setItems((prev) => [...prev, ...details])
+        offsetRef.current += slice.length
+        setHasMore(offsetRef.current < matches.length)
+      } else if (mode === 'type') {
         const members = typeMembersRef.current[typeFilter] ?? []
         const slice = members.slice(offsetRef.current, offsetRef.current + PAGE_SIZE)
         const details = await Promise.all(slice.map((m) => fetchPokemonDetail(m.name)))
