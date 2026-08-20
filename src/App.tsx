@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { GitCompare, Loader2 } from 'lucide-react'
 import { Header } from './components/Header'
+import { Hero } from './components/Hero'
 import { SearchBar } from './components/SearchBar'
 import { TypeFilter } from './components/TypeFilter'
 import { SortControl } from './components/SortControl'
@@ -11,10 +12,11 @@ import { ErrorState } from './components/ErrorState'
 import { EmptyState } from './components/EmptyState'
 import { PokemonModal } from './components/PokemonModal'
 import { CompareModal } from './components/CompareModal'
+import { ScrollToTop } from './components/ScrollToTop'
 import { useTheme } from './hooks/useTheme'
 import { useFavorites } from './hooks/useFavorites'
 import { usePokemonExplorer } from './hooks/usePokemonExplorer'
-import { fetchAllTypes, fetchPokemonDetail } from './services/pokemonApi'
+import { fetchAllTypes, fetchPokemonCount, fetchPokemonDetail } from './services/pokemonApi'
 import type { PokemonSummary } from './types/pokemon'
 import { formatName } from './utils/format'
 
@@ -26,6 +28,7 @@ function App() {
 
   const explorer = usePokemonExplorer()
   const [allTypes, setAllTypes] = useState<string[]>([])
+  const [totalCount, setTotalCount] = useState<number | null>(null)
 
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false)
   const [favoritePokemon, setFavoritePokemon] = useState<PokemonSummary[]>([])
@@ -44,6 +47,9 @@ function App() {
     fetchAllTypes()
       .then(setAllTypes)
       .catch(() => setAllTypes([]))
+    fetchPokemonCount()
+      .then(setTotalCount)
+      .catch(() => setTotalCount(null))
   }, [])
 
   const loadFavoritesList = useCallback(async () => {
@@ -128,8 +134,10 @@ function App() {
       />
 
       <main className="mx-auto max-w-6xl px-4 pb-28 pt-6 sm:px-6">
+        {!showFavoritesOnly && <Hero totalCount={totalCount} />}
+
         {!showFavoritesOnly && (
-          <div className="mb-6 flex flex-col gap-4">
+          <div className="mb-3 flex flex-col gap-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <div className="sm:max-w-sm sm:flex-1">
                 <SearchBar value={explorer.searchInput} onChange={explorer.setSearchInput} />
@@ -156,6 +164,12 @@ function App() {
             </div>
             <TypeFilter types={allTypes} selected={explorer.typeFilter} onSelect={explorer.setTypeFilter} />
           </div>
+        )}
+
+        {!showFavoritesOnly && !explorer.loading && !explorer.error && !explorer.notFound && explorer.items.length > 0 && (
+          <p className="mb-4 text-sm font-medium text-zinc-400 dark:text-zinc-500">
+            Showing {explorer.items.length} of {explorer.total.toLocaleString()} Pokémon
+          </p>
         )}
 
         {displayedLoading && <SkeletonGrid />}
@@ -251,6 +265,8 @@ function App() {
           onClose={closeModal}
         />
       )}
+
+      <ScrollToTop />
     </div>
   )
 }

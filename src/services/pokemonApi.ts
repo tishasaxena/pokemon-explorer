@@ -44,7 +44,7 @@ interface RawPokemonDetail {
   sprites: {
     front_default: string | null
     other?: {
-      'official-artwork'?: { front_default: string | null }
+      'official-artwork'?: { front_default: string | null; front_shiny?: string | null }
       home?: { front_default: string | null }
     }
   }
@@ -52,6 +52,7 @@ interface RawPokemonDetail {
   stats: RawStat[]
   abilities: { ability: { name: string } }[]
   moves: { move: { name: string } }[]
+  cries?: { latest: string | null; legacy: string | null }
 }
 
 function statValue(stats: RawStat[], name: string): number {
@@ -67,6 +68,8 @@ function mapPokemon(raw: RawPokemonDetail): PokemonSummary {
       raw.sprites.other?.home?.front_default ??
       raw.sprites.front_default ??
       '',
+    shinyImage: raw.sprites.other?.['official-artwork']?.front_shiny ?? null,
+    cryUrl: raw.cries?.latest ?? null,
     types: raw.types.map((t) => t.type.name) as PokemonSummary['types'],
     stats: {
       hp: statValue(raw.stats, 'hp'),
@@ -110,8 +113,40 @@ export async function fetchTypeMembers(type: string): Promise<NamedApiResource[]
   return data.pokemon.map((p) => p.pokemon)
 }
 
+export async function fetchPokemonCount(): Promise<number> {
+  const data = await getJson<{ count: number }>(`${BASE_URL}/pokemon?limit=1`)
+  return data.count
+}
+
 export async function fetchAllTypes(): Promise<string[]> {
   const data = await getJson<{ results: NamedApiResource[] }>(`${BASE_URL}/type`)
   const excluded = new Set(['unknown', 'shadow'])
   return data.results.map((t) => t.name).filter((t) => !excluded.has(t))
+}
+
+interface RawSpecies {
+  flavor_text_entries: {
+    flavor_text: string
+    language: { name: string }
+  }[]
+}
+
+export async function fetchFlavorText(nameOrId: string | number): Promise<string | null> {
+  const data = await getJson<RawSpecies>(
+    `${BASE_URL}/pokemon-species/${String(nameOrId).toLowerCase().trim()}`,
+  )
+  const entry = data.flavor_text_entries.find((e) => e.language.name === 'en')
+  if (!entry) return null
+  return entry.flavor_text.replace(/[\n\f\r]+/g, ' ').replace(/\s+/g, ' ').trim()
+}
+
+interface RawDamageRelations {
+  double_damage_from: NamedApiResource[]
+  half_damage_from: NamedApiResource[]
+  no_damage_from: NamedApiResource[]
+}
+
+export async function fetchDamageRelations(type: string): Promise<RawDamageRelations> {
+  const data = await getJson<{ damage_relations: RawDamageRelations }>(`${BASE_URL}/type/${type}`)
+  return data.damage_relations
 }

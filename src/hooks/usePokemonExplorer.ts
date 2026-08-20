@@ -19,6 +19,7 @@ export function usePokemonExplorer() {
   const [error, setError] = useState<string | null>(null)
   const [notFound, setNotFound] = useState(false)
   const [hasMore, setHasMore] = useState(false)
+  const [total, setTotal] = useState(0)
 
   const offsetRef = useRef(0)
   const typeMembersRef = useRef<Record<string, NamedApiResource[]>>({})
@@ -39,6 +40,7 @@ export function usePokemonExplorer() {
         if (requestId !== requestIdRef.current) return
         setItems([result])
         setHasMore(false)
+        setTotal(1)
       } else if (mode === 'type') {
         let members = typeMembersRef.current[typeFilter]
         if (!members) {
@@ -52,12 +54,14 @@ export function usePokemonExplorer() {
         setItems(details)
         offsetRef.current = slice.length
         setHasMore(slice.length < members.length)
+        setTotal(members.length)
       } else {
         const page = await fetchPokemonPage(PAGE_SIZE, 0)
         if (requestId !== requestIdRef.current) return
         setItems(page.results)
         offsetRef.current = page.results.length
         setHasMore(page.results.length < page.total)
+        setTotal(page.total)
       }
     } catch (err) {
       if (requestId !== requestIdRef.current) return
@@ -138,6 +142,7 @@ export function usePokemonExplorer() {
     error,
     notFound,
     hasMore,
+    total,
     loadMore,
     retry: loadFirstPage,
     mode,

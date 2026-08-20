@@ -16,6 +16,8 @@ export interface PokemonSummary {
   id: number
   name: string
   image: string
+  shinyImage: string | null
+  cryUrl: string | null
   types: PokemonType[]
   stats: StatBlock
   height: number
@@ -30,3 +32,10 @@ export interface NamedApiResource {
 }
 
 export type SortKey = 'id' | 'name' | 'attack' | 'speed' | 'hp'
+
+export type Effectiveness = 4 | 2 | 1 | 0.5 | 0.25 | 0
+
+export interface TypeMatchup {
+  type: string
+  multiplier: Effectiveness
+}
